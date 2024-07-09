@@ -1,0 +1,9 @@
+{
+  "name": "one-hundred-boxes",
+  "version": "0.0.1",
+  "description": "Check out the 100 boxes challenge",
+  "type": "module",
+  "dependencies": {
+    "express": "^4.19.2"
+  }
+}
