@@ -4,6 +4,7 @@
   "description": "Check out the 100 boxes challenge",
   "type": "module",
   "dependencies": {
-    "express": "^4.19.2"
+    "express": "^4.19.2",
+    "socket.io": "^4.7.5"
   }
 }
