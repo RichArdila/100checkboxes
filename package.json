@@ -2,7 +2,7 @@
   "name": "one-hundred-boxes",
   "version": "0.0.1",
   "description": "Check out the 100 boxes challenge",
-  "type": "module",
+  "type": "commonjs",
   "dependencies": {
     "express": "^4.19.2",
     "socket.io": "^4.7.5"
