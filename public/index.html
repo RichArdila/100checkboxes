@@ -11,5 +11,34 @@
     <div id="checkboxes"></div>
     <script src="/socket.io/socket.io.js"></script>
     <script src="main.js"></script>
+
+    <form id="form" action="">
+      <button id="toggle-btn">Disconnect</button>
+    </form>
+
+    <script>
+      const toggleButton = document.getElementById("toggle-btn");
+      const statusMessage = document.createElement("p");
+      const checkboxesDiv = document.getElementById("checkboxes");
+
+      toggleButton.addEventListener("click", (e) => {
+        e.preventDefault();
+        if (socket.connected) {
+          toggleButton.innerText = "Connect";
+          socket.disconnect();
+          statusMessage.innerText = "Disconnected";
+        } else {
+          toggleButton.innerText = "Disconnect";
+          socket.connect();
+          statusMessage.innerText = "Connected";
+          socket.emit("user action", {
+            action: "connect",
+            serverOffset: socket.auth.serverOffset,
+          });
+        }
+      });
+
+      checkboxesDiv.appendChild(statusMessage);
+    </script>
   </body>
 </html>

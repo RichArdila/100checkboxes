@@ -1,4 +1,8 @@
-const socket = io();
+const socket = io({
+  auth: {
+    serverOffset: 0,
+  },
+});
 
 const checkboxesContainer = document.getElementById("checkboxes");
 
@@ -24,10 +28,8 @@ checkboxesContainer.addEventListener("change", (event) => {
 });
 
 // Update checkboxes based on server data
-socket.on("updateCheckboxes", (checkboxStates) => {
-  checkboxStates.forEach((checked, index) => {
-    document.getElementById(`checkbox-${index}`).checked = checked;
-  });
+socket.on("updateCheckboxes", (index, checked, id) => {
+  document.getElementById(`checkbox-${index}`).checked = checked;
 });
 
 // Listen for checkbox updates from server
