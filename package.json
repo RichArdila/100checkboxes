@@ -4,7 +4,13 @@
   "description": "Check out the 100 boxes challenge",
   "type": "commonjs",
   "dependencies": {
+    "connect-sqlite3": "^0.9.15",
+    "dotenv": "^16.4.5",
     "express": "^4.19.2",
+    "express-session": "^1.18.0",
+    "morgan": "^1.10.0",
+    "passport": "^0.7.0",
+    "passport-google-oidc": "^0.1.0",
     "socket.io": "^4.7.5",
     "sqlite": "^5.1.1",
     "sqlite3": "^5.1.7"

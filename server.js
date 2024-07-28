@@ -1,9 +1,14 @@
+require("dotenv").config();
 const express = require("express");
 const http = require("http");
 const { Server } = require("socket.io");
-
 const sqlite3 = require("sqlite3");
 const { open } = require("sqlite");
+const path = require("path");
+var logger = require("morgan");
+var session = require("express-session");
+var SQLiteStore = require("connect-sqlite3")(session);
+var passport = require("passport");
 
 async function main() {
   // Open a database connection
@@ -23,9 +28,28 @@ async function main() {
   const io = new Server(server, { connectionStateRecovery: {} });
 
   // Serve static files
-  app.use(express.static("public"));
+  app.use(express.static(path.join(__dirname, "public")));
 
-  // Store checkbox states
+  app.use(
+    session({
+      secret: "keyboard cat",
+      resave: false,
+      saveUninitialized: false,
+      store: new SQLiteStore({ db: "sessions.db", dir: "./var/db" }),
+    })
+  );
+
+  app.use(passport.authenticate("session"));
+
+  // Inicializar Passport
+  app.use(passport.initialize());
+  app.use(passport.session());
+
+  //Routers
+  var authRouter = require("./routes/auth");
+
+  //User routes
+  app.use("/", authRouter);
 
   io.on("connection", async (socket) => {
     // Send the current state to the new user
@@ -69,7 +93,7 @@ async function main() {
     }
   });
 
-  const PORT = process.env.PORT || 3001;
+  const PORT = process.env.PORT || 3000;
   server.listen(PORT, () => {
     console.log(`Server is running on port http://localhost:${PORT}`);
   });
