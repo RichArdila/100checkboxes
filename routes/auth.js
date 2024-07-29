@@ -84,7 +84,7 @@ passport.use(
 );
 
 router.get("/login", function (req, res, next) {
-  res.sendFile(path.join(__dirname, "..", "public", "views", "login.html")); // Ruta correcta para enviar login.html
+  res.sendFile(path.join(__dirname, "..", "public", "views", "login.html"));
 });
 
 router.get("/login/federated/google", passport.authenticate("google"));
@@ -98,11 +98,18 @@ router.get(
 );
 
 router.post("/logout", function (req, res, next) {
+  console.log("Before logout:", req.session);
   req.logout(function (err) {
     if (err) {
       return next(err);
     }
-    res.redirect("/");
+    req.session.destroy(function (err) {
+      if (err) {
+        return next(err);
+      }
+      console.log("After logout:", req.session);
+      res.redirect("/");
+    });
   });
 });
 

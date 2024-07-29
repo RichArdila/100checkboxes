@@ -30,14 +30,14 @@ async function main() {
   // Serve static files
   app.use(express.static(path.join(__dirname, "public")));
 
-  app.use(
-    session({
-      secret: "keyboard cat",
-      resave: false,
-      saveUninitialized: false,
-      store: new SQLiteStore({ db: "sessions.db", dir: "./var/db" }),
-    })
-  );
+  const sessionMiddleware = session({
+    secret: "keyboard cat",
+    resave: false,
+    saveUninitialized: false,
+    store: new SQLiteStore({ db: "sessions.db", dir: "./var/db" }),
+  });
+
+  app.use(sessionMiddleware);
 
   app.use(passport.authenticate("session"));
 
@@ -51,8 +51,37 @@ async function main() {
   //User routes
   app.use("/", authRouter);
 
+  function onlyForHandshake(middleware) {
+    return (req, res, next) => {
+      const isHandshake = req._query.sid === undefined;
+      if (isHandshake) {
+        middleware(req, res, next);
+      } else {
+        next();
+      }
+    };
+  }
+
+  io.engine.use(onlyForHandshake(sessionMiddleware));
+  io.engine.use(onlyForHandshake(passport.session()));
+  io.engine.use(
+    onlyForHandshake((req, res, next) => {
+      if (req.user) {
+        next();
+      } else {
+        res.writeHead(401);
+        res.end();
+      }
+    })
+  );
+
   io.on("connection", async (socket) => {
     // Send the current state to the new user
+
+    const userId = socket.request.user.id;
+
+    // the user ID is used as a room
+    socket.join(`user:${userId}`);
 
     // Listen for checkbox changes
     socket.on("checkboxChange", async ({ index, checked }) => {
@@ -68,8 +97,13 @@ async function main() {
         // TODO handle the failure
         return;
       }
+
       // Broadcast the change to all connected clients
-      io.emit("checkboxChange", { index, checked, id: result.lastID });
+      io.to(`user:${userId}`).emit("checkboxChange", {
+        index,
+        checked,
+        id: result.lastID,
+      });
     });
 
     if (!socket.recovered) {
